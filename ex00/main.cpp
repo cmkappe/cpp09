@@ -24,41 +24,22 @@
 
 
 
-bool    checkArguments(int ac, char **av){
-
-    for (int i = 1; i <= ac; i++){
-        std::string  date;
-        double  value;
-        if (!date = validateLine(av[i]))
-            throw std::exception("invalid argument");
-        int line = av[i];
-            validateDate(date, line);
-
-    }
-}
-
-
 
 int main (int ac, char **av) {
 
-    if (ac < 2){
+    if (ac != 2){
         std::cout << "Error: could not open file." << std::endl;
         return(1);
     }
 
     BitcoinExchange table;
 
-    if (!checkArguments(ac, av)){
-        std::cout << "Error: could not open file." << std::endl;
-        return 1;
-    }
-
     if (!table.loadDatabase("data.csv")){
         std::cout << "Error: could not open file." << std::endl;
         return 1;
     }
 
-    table.processInput();
+    table.processInput(av[1]);
 
 
     return 0;
