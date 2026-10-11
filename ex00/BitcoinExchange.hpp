@@ -23,6 +23,8 @@ class BitcoinExchange {
         bool loadDatabase(const std::string& path);
         void processInput(const std::string& path) const;
 
+        static bool isValidDate(const std::string &date);
+        static bool isValidValue(const std::string &value, double &outValue);
 };
 
 #endif

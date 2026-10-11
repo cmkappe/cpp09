@@ -5,40 +5,54 @@
 #include <cstdlib>
 #include <cmath>
 
+
+// ________________  Constructor  ________________
 BitcoinExchange::BitcoinExchange() {}
 
 BitcoinExchange::~BitcoinExchange() {}
 
-// date must have exactly ten characters, with dashes in positions 4 and 7
-// every other character must be a digit
-// extract day, month & year with substr & atoi
-// need to account foor leap year
 
-bool BitcoinExchange::isValidDate(const std::string &date)
-{
+// ________________  Utils  ________________
+static std::string trim(const std::string &str) {
+    size_t start = str.find_first_not_of(" \t");
+    size_t end = str.find_last_not_of(" \t");
+
+    if (start == std::string::npos)
+        return "";
+
+    return str.substr(start, end - start + 1);
+}
+
+
+// ________________  Validation  ________________
+bool BitcoinExchange::isValidDate(const std::string &date) {
+    // date must have exactly ten characters, with dashes in positions 4 and 7
     if (date.length() != 10
-        || date[4] != '-'
-        || date[7] != '-')
-        return false;
-
-    for (size_t i = 0; i < date.length(); ++i)
-    {
+    || date[4] != '-'
+    || date[7] != '-')
+    return false;
+    
+    // every other character must be a digit
+    for (size_t i = 0; i < date.length(); ++i) {
         if (i == 4 || i == 7)
-            continue;
+        continue;
         if (date[i] < '0' || date[i] > '9')
-            return false;
+        return false;
     }
-
+    
+    // extract day, month & year and convert to int
     int year = std::atoi(date.substr(0, 4).c_str());
     int month = std::atoi(date.substr(5, 2).c_str());
     int day = std::atoi(date.substr(8, 2).c_str());
-
+    
     if (month < 1 || month > 12 || day < 1)
-        return false;
-
+    return false;
+    
+    // max days per month
     int days[] = {31, 28, 31, 30, 31, 30,
-                  31, 31, 30, 31, 30, 31};
-
+        31, 31, 30, 31, 30, 31};
+        
+    // need to account foor leap year
     bool leap = (year % 4 == 0
         && (year % 100 != 0 || year % 400 == 0));
 
@@ -51,20 +65,44 @@ bool BitcoinExchange::isValidDate(const std::string &date)
     return true;
 }
 
+bool BitcoinExchange::isValidValue(const std::string &value, double &amount) {
+    if (value.empty())
+        return false;
 
-static std::string trim(const std::string &str)
-{
-    size_t start = str.find_first_not_of(" \t");
-    size_t end = str.find_last_not_of(" \t");
+    // strtod converts the string into a double
+    // end points to the first character that could not be converted
+    char *end;
+    double number = std::strtod(value.c_str(), &end);
 
-    if (start == std::string::npos)
-        return "";
+    // reject strings that contain no number or extra characters
+    // for example: "abc", "12abc", or "1.2.3".
+    if (end == value.c_str() || *end != '\0')
+        return false;
 
-    return str.substr(start, end - start + 1);
+    // reject special values like inf and nan
+    if (!std::isfinite(number))
+        return false;
+
+    if (number < 0){
+        std::cerr << "Error: not a positive number." << std::endl;
+        return false;
+    }
+
+    if (number > 1000){
+        std::cerr << "Error: oo large a number." << std::endl;
+        return false;
+    }
+
+    amount = number;
+    return true;
 }
 
-bool BitcoinExchange::loadDatabase(const std::string &path)
-{
+
+
+
+// ________________  Data Input  ________________
+
+bool BitcoinExchange::loadDatabase(const std::string &path) {
     std::ifstream file(path.c_str());
 
     if (!file.is_open())
@@ -98,27 +136,24 @@ bool BitcoinExchange::loadDatabase(const std::string &path)
 
 
 
-void BitcoinExchange::processInput(const std::string &path) const
-{
+void BitcoinExchange::processInput(const std::string &path) const {
     std::ifstream file(path.c_str());
 
-    if (!file.is_open())
-    {
+    if (!file.is_open()) {
         std::cerr << "Error: could not open file." << std::endl;
         return;
     }
 
     std::string line;
 
-    while (std::getline(file, line))
-    {
+    while (std::getline(file, line)) {
         // Ignore empty lines and the header.
         if (trim(line).empty() || trim(line) == "date | value")
             continue;
 
-        // Find the separator.
         size_t pipe = line.find('|');
 
+        // valid line contains ONE seperator
         if (pipe == std::string::npos
             || line.find('|', pipe + 1) != std::string::npos){
             std::cout << "Error: bad input => " << line << std::endl;
@@ -135,8 +170,20 @@ void BitcoinExchange::processInput(const std::string &path) const
             continue;
         }
 
-        std::cout << "Parsed date: [" << date << "]" << " | Parsed value: [" << value << "]" << std::endl;
+        if (!isValidDate(date)) {
+        std::cout << "Error: bad input => " << line << std::endl;
+        continue;
+    }
+
+    double amount;
+
+    if (!isValidValue(value, amount)) {
+        if (value.find_first_not_of("0123456789.+-") != std::string::npos)
+            std::cout << "Error: bad input => " << line << std::endl;
+        continue;
+    }
+
+    std::cout << "Valid date: " << date << " | Valid amount: " << amount << std::endl;
     }
 }
-
 
