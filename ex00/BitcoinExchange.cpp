@@ -89,7 +89,7 @@ bool BitcoinExchange::isValidValue(const std::string &value, double &amount) {
     }
 
     if (number > 1000){
-        std::cerr << "Error: oo large a number." << std::endl;
+        std::cerr << "Error: too large a number." << std::endl;
         return false;
     }
 
@@ -135,6 +135,27 @@ bool BitcoinExchange::loadDatabase(const std::string &path) {
 }
 
 
+double BitcoinExchange::getExchangeRate(const std::string &date) const
+{
+    // most recent rate that is not later than the input date
+    double rate = -1.0;
+
+    // Go through the database in chronological order
+    for (std::list<std::pair<std::string, double> >::const_iterator it
+            = _rates.begin(); it != _rates.end(); ++it)
+    {
+        // Stop when the database date is later than the input date
+        if (it->first > date)
+            break;
+
+        // valid rate
+        rate = it->second;
+    }
+
+    // Returns -1 if no database date was early enough
+    return rate;
+}
+
 
 void BitcoinExchange::processInput(const std::string &path) const {
     std::ifstream file(path.c_str());
@@ -173,17 +194,33 @@ void BitcoinExchange::processInput(const std::string &path) const {
         if (!isValidDate(date)) {
         std::cout << "Error: bad input => " << line << std::endl;
         continue;
-    }
+        }
 
-    double amount;
+        double amount;
 
-    if (!isValidValue(value, amount)) {
-        if (value.find_first_not_of("0123456789.+-") != std::string::npos)
-            std::cout << "Error: bad input => " << line << std::endl;
-        continue;
+        if (!isValidValue(value, amount)) {
+            if (value.find_first_not_of("0123456789.+-") != std::string::npos)
+                std::cout << "Error: bad input => " << line << std::endl;
+            continue;
     }
 
     std::cout << "Valid date: " << date << " | Valid amount: " << amount << std::endl;
+
+
+    double rate = getExchangeRate(date);
+
+    if (rate < 0){
+        std::cout << "Error: no earlier exchange rate found for " << date << std::endl;
+        continue;
     }
-}
+
+    std::cout << "Date: " << date << " | Amount: " << amount << " | Rate: " << rate << std::endl;
+    
+
+    // multiply the input amount by the exchange rate
+    double result = amount * rate;
+
+    std::cout << date << " => " << amount << " = " << result << std::endl;
+    }
+} 
 

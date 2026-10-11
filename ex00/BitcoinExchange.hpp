@@ -25,6 +25,8 @@ class BitcoinExchange {
 
         static bool isValidDate(const std::string &date);
         static bool isValidValue(const std::string &value, double &outValue);
+
+        double getExchangeRate(const std::string &date) const;
 };
 
 #endif
