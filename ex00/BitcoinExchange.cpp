@@ -9,6 +9,16 @@ BitcoinExchange::BitcoinExchange() {}
 
 BitcoinExchange::~BitcoinExchange() {}
 
+static std::string trim(const std::string &str)
+{
+    size_t start = str.find_first_not_of(" \t");
+    size_t end = str.find_last_not_of(" \t");
+
+    if (start == std::string::npos)
+        return "";
+
+    return str.substr(start, end - start + 1);
+}
 
 bool BitcoinExchange::loadDatabase(const std::string &path)
 {
@@ -59,7 +69,30 @@ void BitcoinExchange::processInput(const std::string &path) const
 
     while (std::getline(file, line))
     {
-        std::cout << "Input line: " << line << std::endl;
+        // Ignore empty lines and the header.
+        if (trim(line).empty() || trim(line) == "date | value")
+            continue;
+
+        // Find the separator.
+        size_t pipe = line.find('|');
+
+        if (pipe == std::string::npos
+            || line.find('|', pipe + 1) != std::string::npos){
+            std::cout << "Error: bad input => " << line << std::endl;
+            continue;
+        }
+
+        // Extract and trim the two fields.
+        std::string date = trim(line.substr(0, pipe));
+        std::string value = trim(line.substr(pipe + 1));
+
+        // Check that both fields are present.
+        if (date.empty() || value.empty()) {
+            std::cout << "Error: bad input => " << line << std::endl;
+            continue;
+        }
+
+        std::cout << "Parsed date: [" << date << "]" << " | Parsed value: [" << value << "]" << std::endl;
     }
 }
 
