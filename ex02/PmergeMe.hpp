@@ -2,6 +2,12 @@
 
 #include <iostream>
 
+static const char* RESET = "\033[0m";
+static const char* BOLD = "\033[1m";
+static const char* CYAN = "\033[36m";
+static const char* GREEN = "\033[32m";
+//static const char* RED = "\033[31m";
+static const char* YELLOW = "\033[33m";
 
 /* 1. Pair and compare groups
 Compare the larger elements of adjacent groups and swap groups when necessary soo that the higher number comes second (b1 a1)
@@ -17,6 +23,9 @@ b to pending, a to main
 Insert pending groups into bounded portions of the main chain, then handle leftover elements */
 
 //pMerge: utility class, dosn't hold data or actual object
+
+// MAIN contains the elements/groups already being used as the sorted insertion chain
+// PENDING contains the elements/groups that still need to be inserted into main
 
 class pMerge {
     private:
@@ -38,7 +47,6 @@ template <typename T>
 static void jacob(T &container, unsigned long n)
 {
     std::cout << "Entering jacob(): n = " << n << ", size = " << container.size() << std::endl;
-
 
     if (n > container.size())
         return;
@@ -75,6 +83,39 @@ static void jacob(T &container, unsigned long n)
 
     n = n >> 1;
     std::cout << "going back to lvl: n = " << n << std::endl;
+
+    std::vector<unsigned long> main;
+    std::vector<unsigned long> pending;
+
+    size_t j = 0;
+
+    // first two groups go into main
+    while (j < n * 2 && j < container.size())
+        main.push_back(container[j++]);
+
+    // remaining complete groups alternate between pending and main
+    size_t participating = container.size() - (container.size() % n);
+    bool stop = false;
+
+    while (j < participating){
+        for (size_t k = 0; k < n && j < participating; ++k, ++j) {
+            if (stop)
+                main.push_back(container[j]);
+            else
+                pending.push_back(container[j]);
+        }
+        stop = !stop;
+    }  
+
+    std::cout << YELLOW << "\nmain: " << RESET;
+        for (size_t i = 0; i < main.size(); ++i)
+            std::cout << main[i] << " ";
+
+        std::cout << CYAN << "\npending: " << RESET;
+        for (size_t i = 0; i < pending.size(); ++i)
+            std::cout << pending[i] << " ";
+
+        std::cout << std::endl;
 
     // Rebuild the main and pending chains
 

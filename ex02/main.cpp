@@ -5,6 +5,7 @@
 #include <string>
 #include <iostream>
 
+
 int main(void){
     
 /*     std::vector<std::string> arg;
@@ -23,10 +24,10 @@ int main(void){
 
     jacob(v, 1);
 
-    std::cout << "Result: ";
+    std::cout << BOLD << GREEN << "\n\nResult: " << RESET;
     for (size_t i = 0; i < v.size(); ++i)
         std::cout << v[i] << " ";
-    std::cout << std::endl;
+    std::cout << "\n" << std::endl;
 
     return 0;
 
