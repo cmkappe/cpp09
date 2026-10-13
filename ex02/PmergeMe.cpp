@@ -1,6 +1,17 @@
+
 #include "PmergeMe.hpp"
 
 #include <iostream>
+#include <cmath>
+
+int jacobNumber(int n)
+{
+    return std::round(
+        (std::pow(2, n + 1) + std::pow(-1, n)) / 3
+    );
+}
+
+
 
 /* template <typename T>
 static void jacob(T &container, unsigned long n)

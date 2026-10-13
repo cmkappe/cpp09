@@ -1,6 +1,9 @@
 #pragma once
 
 #include <iostream>
+#include <vector>
+#include <algorithm>
+#include <cmath>
 
 static const char* RESET = "\033[0m";
 static const char* BOLD = "\033[1m";
@@ -37,14 +40,15 @@ class pMerge {
         pMerge &operator=(const pMerge &other) = delete;
 
     public:
-    
+        
         // merge(T container);
-        template <typename T>
-            void jacob(T &container, unsigned long n);
+        
 };
 
+int jacobNumber(int n);
+
 template <typename T>
-static void jacob(T &container, unsigned long n)
+void jacob(T &container, unsigned long n)
 {
     std::cout << "Entering jacob(): n = " << n << ", size = " << container.size() << std::endl;
 
@@ -107,6 +111,7 @@ static void jacob(T &container, unsigned long n)
         stop = !stop;
     }  
 
+    // Rebuild the main and pending chains
     std::cout << YELLOW << "\nmain: " << RESET;
         for (size_t i = 0; i < main.size(); ++i)
             std::cout << main[i] << " ";
@@ -114,12 +119,74 @@ static void jacob(T &container, unsigned long n)
         std::cout << CYAN << "\npending: " << RESET;
         for (size_t i = 0; i < pending.size(); ++i)
             std::cout << pending[i] << " ";
-
         std::cout << std::endl;
 
-    // Rebuild the main and pending chains
-
     // Insert pending groups in Jacobsthal order
+
+    int counter = 1;
+    size_t comparingIndex = 0;
+
+    int jacobIndex = 2;
+    int Jnum = jacobNumber(jacobIndex);
+
+    while (!pending.empty())
+    {
+        long int temp = static_cast<long int>(Jnum - counter)
+                    * static_cast<long int>(n) - 1;
+
+        if (temp < 0){
+            break; 
+        }
+
+        comparingIndex = static_cast<size_t>(temp);
+
+        while (comparingIndex >= pending.size())
+            comparingIndex--;
+
+        std::cout << "Next pending index: "
+                << comparingIndex << std::endl;
+
+        break;
+    }
+
+/*  counter         which pending group we're looking at
+    startingBounds  where the search through main begins
+    endingBounds    identifies upper bound for inserting pending element
+    comparingIndex  identifies which element in pending we are trying to insert */
+    /* int counter = 1;
+    // size_t startingBounds = n - 1;
+    // size_t endingBounds;
+    size_t comparingIndex;
+
+    int jacobIndex = 2;
+    int Jnum = jacobNumber(jacobIndex);
+
+    while (pending.size() != 0)
+    {
+        size_t jprev = Jnum;
+        long int temp = (Jnum - counter) * n - 1;
+
+        if (temp < 0){
+            counter = jprev;
+            Jnum = jacobNumber(++jacobIndex);
+
+            comparingIndex = (Jnum - counter) * n - 1;
+
+            while (comparingIndex >= pending.size()){
+                counter++;
+                comparingIndex = (Jnum - counter) * n - 1;
+            }
+        }
+        else {
+            comparingIndex = temp;
+
+            while (comparingIndex >= pending.size())
+                comparingIndex--;
+        }
+
+    }
+    std::cout << "Next pending index: " << comparingIndex << std::endl; */
+    // Actual insertion comes next.
 
     // Restore any leftover elements
 }
