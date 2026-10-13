@@ -19,14 +19,15 @@ int main(void){
         jacob();
     } */
 
-    std::vector<int> v;
-    v.push_back(3);
-    v.push_back(5);
-    v.push_back(9);
-    v.push_back(7);
-    v.push_back(4);
+    std::vector<unsigned long> v = {9, 5, 3, 7};
 
     jacob(v, 1);
+
+    std::cout << "Result: ";
+    for (size_t i = 0; i < v.size(); ++i)
+        std::cout << v[i] << " ";
+    std::cout << std::endl;
+
     return 0;
 
 }

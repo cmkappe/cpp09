@@ -43,9 +43,24 @@ static void jacob(T &container, unsigned long n)
     if (n > container.size())
         return;
 
-    if (n != 1)
-    {
-        // Compare adjacent groups of size n / 2
+    if (n != 1) {
+        auto containerParticipants = container.size() - container.size() % n;
+
+        for (size_t i = n - 1; i < containerParticipants; i += n) {
+            size_t offset = n / 2;
+            std::cout << "Offset: " << offset << std::endl;
+            // Compare the groups and swap if necessary
+            if (i % n == n - 1 && container[i - offset] > container[i])
+            {
+                for (size_t temp = i; temp > i - offset; --temp){
+                    std::swap(container[temp], container[temp - offset]);
+                }
+            }
+            /* if (container[i - offset] > container[i])
+            {
+                // Swap the two adjacent groups
+            } */
+        }
     }
 
     // doubles value, so /2
@@ -54,11 +69,12 @@ static void jacob(T &container, unsigned long n)
     jacob(container, n);
 
     if (n > container.size()){
-        std::cout << "Returning: n = " << n << std::endl;
+        std::cout << "returning: n = " << n << std::endl;
         return;
     }
 
     n = n >> 1;
+    std::cout << "going back to lvl: n = " << n << std::endl;
 
     // Rebuild the main and pending chains
 

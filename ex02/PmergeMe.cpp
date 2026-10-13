@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-template <typename T>
+/* template <typename T>
 static void jacob(T &container, unsigned long n)
 {
     std::cout << "Entering jacob(): n = " << n << ", size = " << container.size() << std::endl;
@@ -11,9 +11,14 @@ static void jacob(T &container, unsigned long n)
     if (n > container.size())
         return;
 
-    if (n != 1)
-    {
-        // Compare adjacent groups of size n / 2
+    if (n != 1) {
+        auto containerParticipants = container.size() - container.size() % n;
+
+        for (size_t i = n - 1; i < containerParticipants; i += n) {
+            size_t offset = n / 2;
+
+            // Compare the groups and swap if necessary.
+        }
     }
 
     // doubles value, so /2
@@ -33,4 +38,4 @@ static void jacob(T &container, unsigned long n)
     // Insert pending groups in Jacobsthal order
 
     // Restore any leftover elements
-}
+} */
