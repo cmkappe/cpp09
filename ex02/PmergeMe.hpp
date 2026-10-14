@@ -171,9 +171,9 @@ void jacob(T &container, unsigned long n)
     endingBounds    identifies upper bound for inserting pending element
     comparingIndex  identifies which element in pending we are trying to insert */
     int counter = 1;
-    size_t comparingIndex = 0;
     size_t startingBounds = n - 1;
     size_t endingBounds;
+    size_t comparingIndex = 0;
 
     int jacobIndex = 2;
     int Jnum = jacobNumber(jacobIndex);
@@ -184,11 +184,33 @@ void jacob(T &container, unsigned long n)
         long int temp = static_cast<long int>(Jnum - counter) * static_cast<long int>(n) - 1;
 
         // boundary reached, next boundary in the following step
-        if (temp < 0){
-            break; 
+        if (temp < 0)
+    {
+        // The current Jacobsthal group is finished.
+        // Move to the next Jacobsthal number.
+        counter = Jnum;
+        Jnum = jacobNumber(++jacobIndex);
+
+        // Calculate the index for the new group.
+        temp = static_cast<long int>(Jnum - counter)
+             * static_cast<long int>(n) - 1;
+
+        // Move backwards until the index is inside pending.
+        while (temp >= static_cast<long int>(pending.size())) {
+            counter++;
+            temp = static_cast<long int>(Jnum - counter)
+                 * static_cast<long int>(n) - 1;
         }
 
         comparingIndex = static_cast<size_t>(temp);
+    }
+    else {
+        comparingIndex = static_cast<size_t>(temp);
+
+        // If the index exceeds pending, use its last available element.
+        while (comparingIndex >= pending.size())
+            comparingIndex--;
+    }
 
         // keep index in pending
         while (comparingIndex >= pending.size())
@@ -201,20 +223,24 @@ void jacob(T &container, unsigned long n)
         std::cout << "Pending value: " << pending[comparingIndex] << std::endl;
         std::cout << "Ending bound: " << endingBounds << std::endl;
         
+        bool inserted = false;
+
         // search through main for insertion position
         for (size_t k = startingBounds; k < main.size(); k += n){
-            auto posForInsert = main.begin() + k - n + 1;
+
+            // auto posForInsert = main.begin() + k - n + 1;
+            auto posForInsert = main.begin() + k;
             auto groupStartingPos = pending.begin() + comparingIndex - n + 1;
             auto groupLastPos = pending.begin() + comparingIndex + 1;
             auto posForInsertAfterBounds = main.begin() + k + 1;
 
             // check if bound needs to be adjusted because of relationship between neighbouring groups
-            size_t offsetOfBounds = checkDistanceOfAofNplusOne(
-                container, endingBounds, n, main);
+            size_t offsetOfBounds = checkDistanceOfAofNplusOne(container, endingBounds, n, main);
 
             if (offsetOfBounds != 0)
                 endingBounds = offsetOfBounds;
             
+            std::cout << "Comparing pending " << pending[comparingIndex] << " with main[" << k << "] = " << main[k] << std::endl;
             // if pending element is smaller than the current main element, insert it before that position
             if (pending[comparingIndex] < main[k]) {
                 if (n != 1) {
@@ -228,11 +254,15 @@ void jacob(T &container, unsigned long n)
                     main.insert(posForInsert, pending[comparingIndex]);
                     pending.erase(pending.begin() + comparingIndex);
                 }
+                inserted = true;
                 break;
             }
+
+            
             // If the current element is the upper bound, insert the pending group immediately after it
             else if (main[k] == endingBounds){
                 if (n != 1) {
+                    std::cout << "Inserting before index " << k << std::endl;
                     main.insert(
                         posForInsertAfterBounds, groupStartingPos, groupLastPos);
                     pending.erase(groupStartingPos, groupLastPos);
@@ -241,8 +271,25 @@ void jacob(T &container, unsigned long n)
                     main.insert(posForInsertAfterBounds, endingBounds);
                     pending.erase(pending.begin() + comparingIndex);
                 }
+                inserted = true;
                 break;
-            }
+            }  
         }    
+        if (!inserted)
+        {
+            std::cout << "No insertion occurred for index "
+                    << comparingIndex << std::endl;
+            return;
+        }
+
+        if (!pending.empty()){
+        std::cout << "Pending after insertion: ";
+        for (size_t i = 0; i < pending.size(); ++i)
+            std::cout << pending[i] << " ";
+        std::cout << std::endl;
+            }
     }
+    // copy sorted main chain back into the original container
+    container.clear();
+    container.insert(container.end(), main.begin(), main.end());
 }
