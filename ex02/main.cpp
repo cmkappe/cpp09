@@ -6,9 +6,9 @@
 #include <iostream>
 
 
-int main(void){
-    
-/*     std::vector<std::string> arg;
+int main(void) { 
+
+    /*     std::vector<std::string> arg;
 
     if (ac < 3) {
         std::cerr << "Required a sequence of numbers more than 3" << std::endl;
@@ -30,5 +30,7 @@ int main(void){
     std::cout << "\n" << std::endl;
 
     return 0;
-
 }
+
+
+   
