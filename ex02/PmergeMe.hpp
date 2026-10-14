@@ -229,7 +229,7 @@ void jacob(T &container, unsigned long n)
         for (size_t k = startingBounds; k < main.size(); k += n){
 
             // auto posForInsert = main.begin() + k - n + 1;
-            auto posForInsert = main.begin() + k;
+            auto posForInsert = main.begin() + k - n + 1;
             auto groupStartingPos = pending.begin() + comparingIndex - n + 1;
             auto groupLastPos = pending.begin() + comparingIndex + 1;
             auto posForInsertAfterBounds = main.begin() + k + 1;
@@ -258,7 +258,6 @@ void jacob(T &container, unsigned long n)
                 break;
             }
 
-            
             // If the current element is the upper bound, insert the pending group immediately after it
             else if (main[k] == endingBounds){
                 if (n != 1) {
@@ -268,7 +267,8 @@ void jacob(T &container, unsigned long n)
                     pending.erase(groupStartingPos, groupLastPos);
                 }
                 else {
-                    main.insert(posForInsertAfterBounds, endingBounds);
+                    // main.insert(posForInsertAfterBounds, endingBounds);
+                    main.insert(posForInsertAfterBounds, pending[comparingIndex]);
                     pending.erase(pending.begin() + comparingIndex);
                 }
                 inserted = true;
@@ -289,6 +289,17 @@ void jacob(T &container, unsigned long n)
         std::cout << std::endl;
             }
     }
+
+    int nonParticipating = container.size() % n;
+
+    if (n != 1 || nonParticipating != 0){
+        while (nonParticipating--)
+        {
+            main.push_back(
+                container[container.size() - nonParticipating - 1]);
+        }
+    }
+
     // copy sorted main chain back into the original container
     container.clear();
     container.insert(container.end(), main.begin(), main.end());
