@@ -9,7 +9,7 @@ static const char* RESET = "\033[0m";
 static const char* BOLD = "\033[1m";
 static const char* CYAN = "\033[36m";
 static const char* GREEN = "\033[32m";
-//static const char* RED = "\033[31m";
+static const char* RED = "\033[31m";
 static const char* YELLOW = "\033[33m";
 
 /* 1. Pair and compare groups
@@ -186,28 +186,24 @@ void jacob(T &container, unsigned long n)
         // boundary reached, next boundary in the following step
         if (temp < 0)
     {
-        // The current Jacobsthal group is finished.
-        // Move to the next Jacobsthal number.
+        // current Jacobsthal group is finished, move to the next
         counter = Jnum;
         Jnum = jacobNumber(++jacobIndex);
 
-        // Calculate the index for the new group.
-        temp = static_cast<long int>(Jnum - counter)
-             * static_cast<long int>(n) - 1;
+        // Calculate the index for the new group
+        temp = static_cast<long int>(Jnum - counter) * static_cast<long int>(n) - 1;
 
-        // Move backwards until the index is inside pending.
+        // Move backwards until the index is inside pending
         while (temp >= static_cast<long int>(pending.size())) {
             counter++;
-            temp = static_cast<long int>(Jnum - counter)
-                 * static_cast<long int>(n) - 1;
+            temp = static_cast<long int>(Jnum - counter) * static_cast<long int>(n) - 1;
         }
-
         comparingIndex = static_cast<size_t>(temp);
     }
     else {
         comparingIndex = static_cast<size_t>(temp);
 
-        // If the index exceeds pending, use its last available element.
+        // If the index exceeds pending, use its last available element
         while (comparingIndex >= pending.size())
             comparingIndex--;
     }
@@ -258,7 +254,7 @@ void jacob(T &container, unsigned long n)
                 break;
             }
 
-            // If the current element is the upper bound, insert the pending group immediately after it
+            // if the current element is the upper bound, insert the pending group immediately after it
             else if (main[k] == endingBounds){
                 if (n != 1) {
                     std::cout << "Inserting before index " << k << std::endl;

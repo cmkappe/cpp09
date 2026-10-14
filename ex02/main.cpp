@@ -4,6 +4,10 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <cerrno>
+#include <climits>
+#include <cstdlib>
+#include <cctype>
 
 
 /* int main(void) { 
@@ -69,14 +73,39 @@
 int main (int ac, char **av){
     
     if (ac < 2){
-        std::cerr << "Usage: ./PmergeMe <numbers...>" << std::endl;
+        std::cerr << RED <<"Usage: ./PmergeMe <numbers...>" << RESET << std::endl;
         return 1;
     }
 
     std::vector<unsigned long> numbers;
 
-    for (int i = 1; i < ac; ++i)
-        numbers.push_back(std::strtoul(av[i], NULL, 10));
+    for (int i = 1; i < ac; ++i) {
+    // reject empty arguments and anything other than digits
+    if (av[i][0] == '\0') {
+        std::cerr << RED << "Error!\nUsage: ./PmergeMe <numbers...>" << RESET << std::endl;
+        return 1;
+    }
+
+    for (int j = 0; av[i][j] != '\0'; ++j) {
+        if (!std::isdigit(static_cast<unsigned char>(av[i][j]))) {
+            std::cerr << RED << "Error: Invalid argument!\nUsage: ./PmergeMe <numbers...>" << RESET << std::endl;
+            return 1;
+        }
+    }
+
+    // convert to number
+    errno = 0;
+    char *end;
+    long value = std::strtol(av[i], &end, 10);
+
+    // reject overflow, zero, and values above INT_MAX
+    if (errno == ERANGE || *end != '\0' || value <= 0 || value > INT_MAX){
+        std::cerr << RED << "Error: Invalid value!\nUsage: ./PmergeMe <numbers...>" << RESET << std::endl;
+        return 1;
+    }
+
+    numbers.push_back(static_cast<unsigned long>(value));
+}
 
     for (size_t i = 0; i < numbers.size(); ++i)
         std::cout << numbers[i] << " ";
