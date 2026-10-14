@@ -166,73 +166,83 @@ void jacob(T &container, unsigned long n)
 
     // Insert pending groups in Jacobsthal order
 
+    /*  counter         which pending group we're looking at
+    startingBounds  where the search through main begins
+    endingBounds    identifies upper bound for inserting pending element
+    comparingIndex  identifies which element in pending we are trying to insert */
     int counter = 1;
     size_t comparingIndex = 0;
+    size_t startingBounds = n - 1;
+    size_t endingBounds;
 
     int jacobIndex = 2;
     int Jnum = jacobNumber(jacobIndex);
-    // size_t startingBounds = n - 1;
-    size_t endingBounds;
 
-    while (!pending.empty())
-    {
-        long int temp = static_cast<long int>(Jnum - counter)
-                    * static_cast<long int>(n) - 1;
+    while (!pending.empty()){
+        // Calculate index of next pending group
+        // Jacobsthal numbers determine insertion order
+        long int temp = static_cast<long int>(Jnum - counter) * static_cast<long int>(n) - 1;
 
+        // boundary reached, next boundary in the following step
         if (temp < 0){
             break; 
         }
 
         comparingIndex = static_cast<size_t>(temp);
 
+        // keep index in pending
         while (comparingIndex >= pending.size())
             comparingIndex--;
 
+        // find pendign element and its upper bound
         std::cout << "Next pending index: " << comparingIndex << std::endl;
         endingBounds = findAofNIndex(container, pending[comparingIndex], n);
+        
         std::cout << "Pending value: " << pending[comparingIndex] << std::endl;
-
         std::cout << "Ending bound: " << endingBounds << std::endl;
-        break;
-    }
+        
+        // search through main for insertion position
+        for (size_t k = startingBounds; k < main.size(); k += n){
+            auto posForInsert = main.begin() + k - n + 1;
+            auto groupStartingPos = pending.begin() + comparingIndex - n + 1;
+            auto groupLastPos = pending.begin() + comparingIndex + 1;
+            auto posForInsertAfterBounds = main.begin() + k + 1;
 
-/*  counter         which pending group we're looking at
-    startingBounds  where the search through main begins
-    endingBounds    identifies upper bound for inserting pending element
-    comparingIndex  identifies which element in pending we are trying to insert */
-    /* int counter = 1;
-    
-    size_t comparingIndex;
+            // check if bound needs to be adjusted because of relationship between neighbouring groups
+            size_t offsetOfBounds = checkDistanceOfAofNplusOne(
+                container, endingBounds, n, main);
 
-    int jacobIndex = 2;
-    int Jnum = jacobNumber(jacobIndex);
-
-    while (pending.size() != 0)
-    {
-        size_t jprev = Jnum;
-        long int temp = (Jnum - counter) * n - 1;
-
-        if (temp < 0){
-            counter = jprev;
-            Jnum = jacobNumber(++jacobIndex);
-
-            comparingIndex = (Jnum - counter) * n - 1;
-
-            while (comparingIndex >= pending.size()){
-                counter++;
-                comparingIndex = (Jnum - counter) * n - 1;
+            if (offsetOfBounds != 0)
+                endingBounds = offsetOfBounds;
+            
+            // if pending element is smaller than the current main element, insert it before that position
+            if (pending[comparingIndex] < main[k]) {
+                if (n != 1) {
+                    // insert entire pending group
+                    main.insert(posForInsert, groupStartingPos, groupLastPos);
+                    // remove inserted group from pending
+                    pending.erase(groupStartingPos, groupLastPos);
+                }
+                else {
+                    // if group size is 1, insert a single element
+                    main.insert(posForInsert, pending[comparingIndex]);
+                    pending.erase(pending.begin() + comparingIndex);
+                }
+                break;
             }
-        }
-        else {
-            comparingIndex = temp;
-
-            while (comparingIndex >= pending.size())
-                comparingIndex--;
-        }
-
+            // If the current element is the upper bound, insert the pending group immediately after it
+            else if (main[k] == endingBounds){
+                if (n != 1) {
+                    main.insert(
+                        posForInsertAfterBounds, groupStartingPos, groupLastPos);
+                    pending.erase(groupStartingPos, groupLastPos);
+                }
+                else {
+                    main.insert(posForInsertAfterBounds, endingBounds);
+                    pending.erase(pending.begin() + comparingIndex);
+                }
+                break;
+            }
+        }    
     }
-    std::cout << "Next pending index: " << comparingIndex << std::endl; */
-    // Actual insertion comes next.
-
-    // Restore any leftover elements
 }
