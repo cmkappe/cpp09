@@ -27,17 +27,15 @@ static std::string trim(const std::string &str) {
 // ________________  Validation  ________________
 bool BitcoinExchange::isValidDate(const std::string &date) {
     // date must have exactly ten characters, with dashes in positions 4 and 7
-    if (date.length() != 10
-    || date[4] != '-'
-    || date[7] != '-')
-    return false;
+    if (date.length() != 10 || date[4] != '-' || date[7] != '-')
+        return false;
     
     // every other character must be a digit
     for (size_t i = 0; i < date.length(); ++i) {
         if (i == 4 || i == 7)
-        continue;
+            continue;
         if (date[i] < '0' || date[i] > '9')
-        return false;
+            return false;
     }
     
     // extract day, month & year and convert to int
@@ -46,7 +44,7 @@ bool BitcoinExchange::isValidDate(const std::string &date) {
     int day = std::atoi(date.substr(8, 2).c_str());
     
     if (month < 1 || month > 12 || day < 1)
-    return false;
+        return false;
     
     // max days per month
     int days[] = {31, 28, 31, 30, 31, 30,
@@ -69,13 +67,11 @@ bool BitcoinExchange::isValidValue(const std::string &value, double &amount) {
     if (value.empty())
         return false;
 
-    // strtod converts the string into a double
     // end points to the first character that could not be converted
     char *end;
     double number = std::strtod(value.c_str(), &end);
 
     // reject strings that contain no number or extra characters
-    // for example: "abc", "12abc", or "1.2.3".
     if (end == value.c_str() || *end != '\0')
         return false;
 
@@ -83,7 +79,7 @@ bool BitcoinExchange::isValidValue(const std::string &value, double &amount) {
     if (!std::isfinite(number))
         return false;
 
-    if (number < 0){
+/*     if (number < 0){
         std::cerr << "Error: not a positive number." << std::endl;
         return false;
     }
@@ -91,7 +87,7 @@ bool BitcoinExchange::isValidValue(const std::string &value, double &amount) {
     if (number > 1000){
         std::cerr << "Error: too large a number." << std::endl;
         return false;
-    }
+    } */
 
     amount = number;
     return true;
@@ -107,7 +103,7 @@ bool BitcoinExchange::loadDatabase(const std::string &path) {
 
     if (!file.is_open())
     {
-        std::cerr << "Error: could not open database file." << std::endl;
+        std::cerr << RED << "Error:" << RESET << " could not open database file." << std::endl;
         return false;
     }
 
@@ -130,7 +126,7 @@ bool BitcoinExchange::loadDatabase(const std::string &path) {
 
         _rates.push_back(std::make_pair(date, rate));
     }
-    std::cout << "Loaded " << _rates.size() << " database entries." << std::endl;
+    std::cout << "\nLoaded " << YELLOW << BOLD << _rates.size() << RESET << " database entries." << std::endl;
     return true;
 }
 
@@ -161,7 +157,7 @@ void BitcoinExchange::processInput(const std::string &path) const {
     std::ifstream file(path.c_str());
 
     if (!file.is_open()) {
-        std::cerr << "Error: could not open file." << std::endl;
+        std::cerr << RED << "Error: " << RESET << "could not open file." << std::endl;
         return;
     }
 
@@ -175,9 +171,8 @@ void BitcoinExchange::processInput(const std::string &path) const {
         size_t pipe = line.find('|');
 
         // valid line contains ONE seperator
-        if (pipe == std::string::npos
-            || line.find('|', pipe + 1) != std::string::npos){
-            std::cout << "Error: bad input => " << line << std::endl;
+        if (pipe == std::string::npos || line.find('|', pipe + 1) != std::string::npos){
+            std::cout << RED << "Error: " << RESET << "bad input => " << line << std::endl;
             continue;
         }
 
@@ -187,25 +182,33 @@ void BitcoinExchange::processInput(const std::string &path) const {
 
         // Check that both fields are present.
         if (date.empty() || value.empty()) {
-            std::cout << "Error: bad input => " << line << std::endl;
+            std::cout << RED << "Error: " << RESET << "bad input => " << line << std::endl;
             continue;
         }
 
         if (!isValidDate(date)) {
-        std::cout << "Error: bad input => " << line << std::endl;
-        continue;
+            std::cout << RED << "Error: " << RESET << "bad input => " << line << std::endl;
+            continue;
         }
 
         double amount;
 
         if (!isValidValue(value, amount)) {
-            if (value.find_first_not_of("0123456789.+-") != std::string::npos)
-                std::cout << "Error: bad input => " << line << std::endl;
+            std::cout << RED << "Error: " << RESET << "bad input => " << line << std::endl;
             continue;
-    }
+        }
 
-    std::cout << "Valid date: " << date << " | Valid amount: " << amount << std::endl;
+        if (amount < 0) {
+            std::cout << RED << "Error: " << RESET << "not a positive number." << std::endl;
+            continue;
+        }
 
+        if (amount > 1000) {
+            std::cout << RED << "Error: " << RESET << "too large a number." << std::endl;
+            continue;
+        }
+
+    std::cout << BOLD << "\nValid date: " << date << " | Valid amount: " << amount << RESET << std::endl;
 
     double rate = getExchangeRate(date);
 
@@ -220,7 +223,7 @@ void BitcoinExchange::processInput(const std::string &path) const {
     // multiply the input amount by the exchange rate
     double result = amount * rate;
 
-    std::cout << date << " => " << amount << " = " << result << std::endl;
+    std::cout << date << " => " << amount << " = " << GREEN << BOLD << result << RESET << "\n" << std::endl;
     }
 } 
 
