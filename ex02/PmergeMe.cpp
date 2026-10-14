@@ -4,11 +4,45 @@
 #include <iostream>
 #include <cmath>
 
-int jacobNumber(int n)
-{
-    return std::round(
-        (std::pow(2, n + 1) + std::pow(-1, n)) / 3
-    );
+/* template <typename T>
+static size_t findAofNIndex(const T container, size_t pendingValue, size_t n) {
+  // std::cout << "n = " << n << std::endl;
+  for (auto i = n - 1; i < container.size(); i += n) {
+    if (pendingValue == container[i]) {
+      return container[i - n];
+    }
+  }
+  return 0;
+} */
+
+/* template <typename T>
+static size_t
+checkDistanceOfAofNplusOne(const T container, size_t bounds, size_t n,
+                           const std::vector<unsigned long> main) {
+    size_t temp = 0;
+    for (auto i = n - 1; i < container.size(); i += n) {
+        if (bounds == container[i] && i + 2 * n < container.size()) {
+        temp = container[i + 2 * n];
+        }
+    }
+    if (temp == 0) {
+        return 0;
+    }
+
+    for (size_t i = n - 1; i < main.size(); i += n) {
+        if (i + n >= main.size()) {
+        return 0;
+        }
+        if (main[i] == bounds && temp != main[i + n]) {
+        return temp;
+        }
+    }
+
+    return 0;
+    } */
+
+    int jacobNumber(int n){
+        return std::round((std::pow(2, n + 1) + std::pow(-1, n)) / 3);
 }
 
 

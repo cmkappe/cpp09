@@ -47,6 +47,49 @@ class pMerge {
 
 int jacobNumber(int n);
 
+// checks whether the current bound needs to be adjusted based on the next group in the original container and the current main chain
+template <typename T>
+static size_t checkDistanceOfAofNplusOne(
+    const T container,
+    size_t bounds,
+    size_t n,
+    const std::vector<unsigned long> main)
+{
+    size_t temp = 0;
+
+    for (size_t i = n - 1; i < container.size(); i += n)
+    {
+        if (bounds == container[i]
+            && i + 2 * n < container.size())
+            temp = container[i + 2 * n];
+    }
+
+    if (temp == 0)
+        return 0;
+
+    for (size_t i = n - 1; i < main.size(); i += n)
+    {
+        if (i + n >= main.size())
+            return 0;
+
+        if (main[i] == bounds && temp != main[i + n])
+            return temp;
+    }
+
+    return 0;
+}
+
+template <typename T>
+size_t findAofNIndex(const T container, size_t pendingValue, size_t n) {
+    // std::cout << "n = " << n << std::endl;
+    for (size_t i = n - 1; i < container.size(); i += n)
+    {
+        if (pendingValue == container[i])
+            return container[i - n];
+    }
+    return 0;
+}
+
 template <typename T>
 void jacob(T &container, unsigned long n)
 {
@@ -128,6 +171,8 @@ void jacob(T &container, unsigned long n)
 
     int jacobIndex = 2;
     int Jnum = jacobNumber(jacobIndex);
+    // size_t startingBounds = n - 1;
+    size_t endingBounds;
 
     while (!pending.empty())
     {
@@ -143,9 +188,11 @@ void jacob(T &container, unsigned long n)
         while (comparingIndex >= pending.size())
             comparingIndex--;
 
-        std::cout << "Next pending index: "
-                << comparingIndex << std::endl;
+        std::cout << "Next pending index: " << comparingIndex << std::endl;
+        endingBounds = findAofNIndex(container, pending[comparingIndex], n);
+        std::cout << "Pending value: " << pending[comparingIndex] << std::endl;
 
+        std::cout << "Ending bound: " << endingBounds << std::endl;
         break;
     }
 
@@ -154,8 +201,7 @@ void jacob(T &container, unsigned long n)
     endingBounds    identifies upper bound for inserting pending element
     comparingIndex  identifies which element in pending we are trying to insert */
     /* int counter = 1;
-    // size_t startingBounds = n - 1;
-    // size_t endingBounds;
+    
     size_t comparingIndex;
 
     int jacobIndex = 2;
