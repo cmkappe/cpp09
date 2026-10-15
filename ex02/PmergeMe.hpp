@@ -89,7 +89,7 @@ size_t findGroupBoundBefore(const T container, size_t pendingValue, size_t n) {
 }
 
 template <typename T>
-void jacob(T &container, unsigned long n, size_t &comparisons){
+void jacob(T &container, unsigned long n){
     // std::cout << "Entering jacob(): n = " << n << ", size = " << container.size() << std::endl;
 
     if (n > container.size())
@@ -103,7 +103,7 @@ void jacob(T &container, unsigned long n, size_t &comparisons){
             // std::cout << "Offset: " << offset << std::endl;
             // Compare the groups and swap if necessary
             if (i % n == n - 1) {
-                ++comparisons;
+                // ++comparisons;
                 if (container[i - offset] > container[i])
                 {
                     for (size_t temp = i; temp > i - offset; --temp){
@@ -121,7 +121,7 @@ void jacob(T &container, unsigned long n, size_t &comparisons){
     // doubles value, so /2
     n = n << 1;
 
-    jacob(container, n, comparisons);
+    jacob(container, n);
 
     if (n > container.size()){
         // std::cout << "returning: n = " << n << std::endl;
@@ -240,7 +240,7 @@ void jacob(T &container, unsigned long n, size_t &comparisons){
                 endingBounds = offsetOfBounds;
             
             // std::cout << "Comparing pending " << pending[comparingIndex] << " with main[" << k << "] = " << main[k] << std::endl;
-            ++comparisons;
+            // ++comparisons;
             // if pending element is smaller than the current main element, insert it before that position
             if (pending[comparingIndex] < main[k]) {
                 if (n != 1) {
@@ -260,7 +260,7 @@ void jacob(T &container, unsigned long n, size_t &comparisons){
 
             // if the current element is the upper bound, insert the pending group immediately after it
             else if (main[k] == endingBounds){
-                ++comparisons;
+                // ++comparisons;
                 if (n != 1) {
                     // std::cout << "Inserting before index " << k << std::endl;
                     main.insert(

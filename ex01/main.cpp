@@ -15,7 +15,7 @@ int main(int ac, char **av)
         std::cout << calculator.calculate(av[1]) << std::endl;
     }
     catch (const std::exception &e) {
-        std::cerr << "Error" << std::endl;
+        std::cerr << RED << "Error: " << RESET << e.what() << std::endl;
         return 1;
     }
 

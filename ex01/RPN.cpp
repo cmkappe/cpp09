@@ -52,8 +52,7 @@ int RPN::calculate(const std::string &expression) const
         }
         else {
             // check whether token is a single digit
-            if (token.length() != 1
-                || token[0] < '0' || token[0] > '9')
+            if (token.length() != 1 || token[0] < '0' || token[0] > '9')
                 throw std::runtime_error("Invalid token");
 
             // Convert to int

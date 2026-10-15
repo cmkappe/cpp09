@@ -8,6 +8,8 @@
 #include <climits>
 #include <cstdlib>
 #include <cctype>
+#include <chrono>
+#include <iomanip>
 
 
 /* int main(void) { 
@@ -115,15 +117,19 @@ int main (int ac, char **av){
         std::cout << numbers[i] << " ";
     std::cout << std::endl;
 
+    // size_t comparisons = 0;
 
-    size_t comparisons = 0;
-    jacob(numbers, 1, comparisons);
+    std::chrono::steady_clock::time_point vectorStart = std::chrono::steady_clock::now();
+    jacob(numbers, 1);
+    std::chrono::steady_clock::time_point vectorEnd = std::chrono::steady_clock::now();
+    double vectorTime = std::chrono::duration<double, std::micro>(vectorEnd - vectorStart).count();
+
     std::cout << std::boolalpha << "\nIs the container sorted: " << std::is_sorted(numbers.begin(), numbers.end()) << std::endl;
     std::cout << BOLD << GREEN << "\nResult: " << RESET;
     for (size_t i = 0; i < numbers.size(); ++i)
         std::cout << numbers[i] << " ";
     std::cout << "\n" << std::endl;
-    std::cout << YELLOW << "Total comparisons: " << comparisons << RESET << "\n" << std::endl;
+    // std::cout << YELLOW << "Total comparisons: " << comparisons << RESET << "\n" << std::endl;
 
 
     std::cout << CYAN << BOLD << "\n------------ Deque ------------" << RESET << std::endl;
@@ -132,9 +138,12 @@ int main (int ac, char **av){
         std::cout << dequeNumbers[i] << " ";
     std::cout << std::endl;
 
-    size_t dequeComparisons = 0;
-
-    jacob(dequeNumbers, 1, dequeComparisons);
+    // size_t dequeComparisons = 0;
+    
+    std::chrono::steady_clock::time_point dequeStart = std::chrono::steady_clock::now();
+    jacob(dequeNumbers, 1);
+    std::chrono::steady_clock::time_point dequeEnd = std::chrono::steady_clock::now();
+    double dequeTime = std::chrono::duration<double, std::micro>(dequeEnd - dequeStart).count();
 
     std::cout << std::boolalpha << "\nDeque sorted: " << std::is_sorted(dequeNumbers.begin(), dequeNumbers.end()) << std::endl;
 
@@ -142,8 +151,15 @@ int main (int ac, char **av){
     for (size_t i = 0; i < dequeNumbers.size(); ++i)
         std::cout << dequeNumbers[i] << " ";
     std::cout << std::endl;
-    std::cout << YELLOW << "Total comparisons: " << dequeComparisons << RESET << std::endl;
+    // std::cout << YELLOW << "Total comparisons: " << dequeComparisons << RESET << std::endl;
 
+    std::cout << std::fixed << std::setprecision(3);
+
+    std::cout << "Time to process a range of " << numbers.size() << " elements with std::vector: "
+            << vectorTime << " microseconds" << std::endl;
+
+    std::cout << "Time to process a range of " << dequeNumbers.size() << " elements with std::deque: "
+            << dequeTime << " microseconds" << std::endl;
 
     return 0;
 }
