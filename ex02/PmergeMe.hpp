@@ -50,8 +50,8 @@ int jacobNumber(int n);
 
 // checks whether the current bound needs to be adjusted based on the next group in the original container and the current main chain
 template <typename T>
-static size_t checkDistanceOfAofNplusOne(const T container, size_t bounds, size_t n,
-    const T main)
+static size_t checkDistanceOfAofNplusOne(const T &container, size_t bounds, size_t n,
+    const std::vector<unsigned long> &main)
 {
     size_t temp = 0;
 
@@ -78,7 +78,7 @@ static size_t checkDistanceOfAofNplusOne(const T container, size_t bounds, size_
 }
 
 template <typename T>
-size_t findGroupBoundBefore(const T container, size_t pendingValue, size_t n) {
+size_t findGroupBoundBefore(const T &container, size_t pendingValue, size_t n) {
     // std::cout << "n = " << n << std::endl;
     for (size_t i = n - 1; i < container.size(); i += n)
     {
@@ -134,8 +134,8 @@ void jacob(T &container, unsigned long n){
     // std::vector<unsigned long> main;
     // std::vector<unsigned long> pending;
 
-    T main;
-    T pending;
+    std::vector<unsigned long> main;
+    std::vector<unsigned long> pending;
 
     size_t j = 0;
 
@@ -158,14 +158,14 @@ void jacob(T &container, unsigned long n){
     }  
 
     // Rebuild the main and pending chains
-    std::cout << YELLOW << "\nmain: " << RESET;
+    /* std::cout << YELLOW << "\nmain: " << RESET;
         for (size_t i = 0; i < main.size(); ++i)
             std::cout << main[i] << " ";
 
         std::cout << CYAN << "\npending: " << RESET;
         for (size_t i = 0; i < pending.size(); ++i)
             std::cout << pending[i] << " ";
-        std::cout << std::endl;
+        std::cout << std::endl; */
 
     // Insert pending groups in Jacobsthal order
 
@@ -281,12 +281,12 @@ void jacob(T &container, unsigned long n){
             return;
         }
 
-        if (!pending.empty()){
-        // std::cout << "Pending after insertion: ";
+        /* if (!pending.empty()){
+        std::cout << "Pending after insertion: ";
         for (size_t i = 0; i < pending.size(); ++i)
             std::cout << pending[i] << " ";
         std::cout << std::endl;
-            }
+            } */
     }
 
     int nonParticipating = container.size() % n;
