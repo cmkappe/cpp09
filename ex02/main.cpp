@@ -78,6 +78,7 @@ int main (int ac, char **av){
     }
 
     std::vector<unsigned long> numbers;
+    std::deque<unsigned long> dequeNumbers(numbers.begin(), numbers.end());
 
     for (int i = 1; i < ac; ++i) {
     // reject empty arguments and anything other than digits
@@ -105,18 +106,44 @@ int main (int ac, char **av){
     }
 
     numbers.push_back(static_cast<unsigned long>(value));
+    dequeNumbers.push_back(static_cast<unsigned long>(value));
 }
 
+    std::cout << CYAN << BOLD << "\n------------ Vector ------------" << RESET << std::endl;
+    std::cout << BOLD << "\nVector before sorting: " << RESET;
     for (size_t i = 0; i < numbers.size(); ++i)
         std::cout << numbers[i] << " ";
     std::cout << std::endl;
 
-    jacob(numbers, 1);
+
+    size_t comparisons = 0;
+    jacob(numbers, 1, comparisons);
     std::cout << std::boolalpha << "\nIs the container sorted: " << std::is_sorted(numbers.begin(), numbers.end()) << std::endl;
     std::cout << BOLD << GREEN << "\nResult: " << RESET;
     for (size_t i = 0; i < numbers.size(); ++i)
         std::cout << numbers[i] << " ";
     std::cout << "\n" << std::endl;
+    std::cout << YELLOW << "Total comparisons: " << comparisons << RESET << "\n" << std::endl;
+
+
+    std::cout << CYAN << BOLD << "\n------------ Deque ------------" << RESET << std::endl;
+    std::cout << BOLD << "\nDeque before sorting: " << RESET;
+    for (size_t i = 0; i < dequeNumbers.size(); ++i)
+        std::cout << dequeNumbers[i] << " ";
+    std::cout << std::endl;
+
+    size_t dequeComparisons = 0;
+
+    jacob(dequeNumbers, 1, dequeComparisons);
+
+    std::cout << std::boolalpha << "\nDeque sorted: " << std::is_sorted(dequeNumbers.begin(), dequeNumbers.end()) << std::endl;
+
+    std::cout << BOLD << GREEN << "Deque result: " << RESET;
+    for (size_t i = 0; i < dequeNumbers.size(); ++i)
+        std::cout << dequeNumbers[i] << " ";
+    std::cout << std::endl;
+    std::cout << YELLOW << "Total comparisons: " << dequeComparisons << RESET << std::endl;
+
 
     return 0;
 }

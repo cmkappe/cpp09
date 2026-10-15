@@ -4,6 +4,7 @@
 #include <vector>
 #include <algorithm>
 #include <cmath>
+#include <deque>
 
 static const char* RESET = "\033[0m";
 static const char* BOLD = "\033[1m";
@@ -49,11 +50,8 @@ int jacobNumber(int n);
 
 // checks whether the current bound needs to be adjusted based on the next group in the original container and the current main chain
 template <typename T>
-static size_t checkDistanceOfAofNplusOne(
-    const T container,
-    size_t bounds,
-    size_t n,
-    const std::vector<unsigned long> main)
+static size_t checkDistanceOfAofNplusOne(const T container, size_t bounds, size_t n,
+    const T main)
 {
     size_t temp = 0;
 
@@ -80,7 +78,7 @@ static size_t checkDistanceOfAofNplusOne(
 }
 
 template <typename T>
-size_t findAofNIndex(const T container, size_t pendingValue, size_t n) {
+size_t findGroupBoundBefore(const T container, size_t pendingValue, size_t n) {
     // std::cout << "n = " << n << std::endl;
     for (size_t i = n - 1; i < container.size(); i += n)
     {
@@ -91,9 +89,8 @@ size_t findAofNIndex(const T container, size_t pendingValue, size_t n) {
 }
 
 template <typename T>
-void jacob(T &container, unsigned long n)
-{
-    std::cout << "Entering jacob(): n = " << n << ", size = " << container.size() << std::endl;
+void jacob(T &container, unsigned long n, size_t &comparisons){
+    // std::cout << "Entering jacob(): n = " << n << ", size = " << container.size() << std::endl;
 
     if (n > container.size())
         return;
@@ -103,12 +100,15 @@ void jacob(T &container, unsigned long n)
 
         for (size_t i = n - 1; i < containerParticipants; i += n) {
             size_t offset = n / 2;
-            std::cout << "Offset: " << offset << std::endl;
+            // std::cout << "Offset: " << offset << std::endl;
             // Compare the groups and swap if necessary
-            if (i % n == n - 1 && container[i - offset] > container[i])
-            {
-                for (size_t temp = i; temp > i - offset; --temp){
-                    std::swap(container[temp], container[temp - offset]);
+            if (i % n == n - 1) {
+                ++comparisons;
+                if (container[i - offset] > container[i])
+                {
+                    for (size_t temp = i; temp > i - offset; --temp){
+                        std::swap(container[temp], container[temp - offset]);
+                    }
                 }
             }
             /* if (container[i - offset] > container[i])
@@ -121,18 +121,21 @@ void jacob(T &container, unsigned long n)
     // doubles value, so /2
     n = n << 1;
 
-    jacob(container, n);
+    jacob(container, n, comparisons);
 
     if (n > container.size()){
-        std::cout << "returning: n = " << n << std::endl;
+        // std::cout << "returning: n = " << n << std::endl;
         return;
     }
 
     n = n >> 1;
-    std::cout << "going back to lvl: n = " << n << std::endl;
+    // std::cout << "going back to lvl: n = " << n << std::endl;
 
-    std::vector<unsigned long> main;
-    std::vector<unsigned long> pending;
+    // std::vector<unsigned long> main;
+    // std::vector<unsigned long> pending;
+
+    T main;
+    T pending;
 
     size_t j = 0;
 
@@ -213,11 +216,11 @@ void jacob(T &container, unsigned long n)
             comparingIndex--;
 
         // find pendign element and its upper bound
-        std::cout << "Next pending index: " << comparingIndex << std::endl;
-        endingBounds = findAofNIndex(container, pending[comparingIndex], n);
+        // std::cout << "Next pending index: " << comparingIndex << std::endl;
+        endingBounds = findGroupBoundBefore(container, pending[comparingIndex], n);
         
-        std::cout << "Pending value: " << pending[comparingIndex] << std::endl;
-        std::cout << "Ending bound: " << endingBounds << std::endl;
+        // std::cout << "Pending value: " << pending[comparingIndex] << std::endl;
+        // std::cout << "Ending bound: " << endingBounds << std::endl;
         
         bool inserted = false;
 
@@ -236,7 +239,8 @@ void jacob(T &container, unsigned long n)
             if (offsetOfBounds != 0)
                 endingBounds = offsetOfBounds;
             
-            std::cout << "Comparing pending " << pending[comparingIndex] << " with main[" << k << "] = " << main[k] << std::endl;
+            // std::cout << "Comparing pending " << pending[comparingIndex] << " with main[" << k << "] = " << main[k] << std::endl;
+            ++comparisons;
             // if pending element is smaller than the current main element, insert it before that position
             if (pending[comparingIndex] < main[k]) {
                 if (n != 1) {
@@ -256,8 +260,9 @@ void jacob(T &container, unsigned long n)
 
             // if the current element is the upper bound, insert the pending group immediately after it
             else if (main[k] == endingBounds){
+                ++comparisons;
                 if (n != 1) {
-                    std::cout << "Inserting before index " << k << std::endl;
+                    // std::cout << "Inserting before index " << k << std::endl;
                     main.insert(
                         posForInsertAfterBounds, groupStartingPos, groupLastPos);
                     pending.erase(groupStartingPos, groupLastPos);
@@ -271,15 +276,13 @@ void jacob(T &container, unsigned long n)
                 break;
             }  
         }    
-        if (!inserted)
-        {
-            std::cout << "No insertion occurred for index "
-                    << comparingIndex << std::endl;
+        if (!inserted) {
+            // std::cout << "No insertion occurred for index " << comparingIndex << std::endl;
             return;
         }
 
         if (!pending.empty()){
-        std::cout << "Pending after insertion: ";
+        // std::cout << "Pending after insertion: ";
         for (size_t i = 0; i < pending.size(); ++i)
             std::cout << pending[i] << " ";
         std::cout << std::endl;
