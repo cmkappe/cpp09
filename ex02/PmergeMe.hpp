@@ -26,19 +26,19 @@ b to pending, a to main
 4. Insert in Jacobsthal order
 Insert pending groups into bounded portions of the main chain, then handle leftover elements */
 
-//pMerge: utility class, dosn't hold data or actual object
+// pMergeMe: utility class, doesn't hold data or actual object
 
 // MAIN contains the elements/groups already being used as the sorted insertion chain
 // PENDING contains the elements/groups that still need to be inserted into main
 
-class pMerge {
+class pMergeMe {
     private:
 
-        pMerge() = delete;
-        ~pMerge() = delete;
-        pMerge(int container) = delete;
-        pMerge(const pMerge &other) = delete;
-        pMerge &operator=(const pMerge &other) = delete;
+        pMergeMe() = delete;
+        ~pMergeMe() = delete;
+        pMergeMe(int container) = delete;
+        pMergeMe(const pMergeMe &other) = delete;
+        pMergeMe &operator=(const pMergeMe &other) = delete;
 
     public:
         
@@ -48,15 +48,15 @@ class pMerge {
 
 int jacobNumber(int n);
 
+// ------- HELPER -------
 // checks whether the current bound needs to be adjusted based on the next group in the original container and the current main chain
 template <typename T>
-static size_t checkDistanceOfAofNplusOne(const T &container, size_t bounds, size_t n,
+static size_t checkAdjustedInsertionDistance(const T &container, size_t bounds, size_t n,
     const std::vector<unsigned long> &main)
 {
     size_t temp = 0;
 
-    for (size_t i = n - 1; i < container.size(); i += n)
-    {
+    for (size_t i = n - 1; i < container.size(); i += n){
         if (bounds == container[i]
             && i + 2 * n < container.size())
             temp = container[i + 2 * n];
@@ -65,8 +65,7 @@ static size_t checkDistanceOfAofNplusOne(const T &container, size_t bounds, size
     if (temp == 0)
         return 0;
 
-    for (size_t i = n - 1; i < main.size(); i += n)
-    {
+    for (size_t i = n - 1; i < main.size(); i += n){
         if (i + n >= main.size())
             return 0;
 
@@ -78,16 +77,17 @@ static size_t checkDistanceOfAofNplusOne(const T &container, size_t bounds, size
 }
 
 template <typename T>
-size_t findGroupBoundBefore(const T &container, size_t pendingValue, size_t n) {
+static size_t findGroupBoundBefore(const T &container, size_t pendingValue, size_t n) {
     // std::cout << "n = " << n << std::endl;
-    for (size_t i = n - 1; i < container.size(); i += n)
-    {
+    for (size_t i = n - 1; i < container.size(); i += n){
         if (pendingValue == container[i])
             return container[i - n];
     }
     return 0;
 }
 
+
+// ------- SORTING -------
 template <typename T>
 void jacob(T &container, unsigned long n){
     // std::cout << "Entering jacob(): n = " << n << ", size = " << container.size() << std::endl;
@@ -134,6 +134,7 @@ void jacob(T &container, unsigned long n){
     // std::vector<unsigned long> main;
     // std::vector<unsigned long> pending;
 
+    // Rebuild the main and pending chains
     std::vector<unsigned long> main;
     std::vector<unsigned long> pending;
 
@@ -157,7 +158,7 @@ void jacob(T &container, unsigned long n){
         stop = !stop;
     }  
 
-    // Rebuild the main and pending chains
+
     /* std::cout << YELLOW << "\nmain: " << RESET;
         for (size_t i = 0; i < main.size(); ++i)
             std::cout << main[i] << " ";
@@ -166,6 +167,7 @@ void jacob(T &container, unsigned long n){
         for (size_t i = 0; i < pending.size(); ++i)
             std::cout << pending[i] << " ";
         std::cout << std::endl; */
+
 
     // Insert pending groups in Jacobsthal order
 
@@ -181,6 +183,9 @@ void jacob(T &container, unsigned long n){
     int jacobIndex = 2;
     int Jnum = jacobNumber(jacobIndex);
 
+    // each pending group is inserted using a Jacobsthal step: 
+    //      Jnum is the next sequence value, counter tracks the current offset inside that step
+    // temp selects which group from pending should be inserted next.
     while (!pending.empty()){
         // Calculate index of next pending group
         // Jacobsthal numbers determine insertion order
@@ -210,7 +215,6 @@ void jacob(T &container, unsigned long n){
         while (comparingIndex >= pending.size())
             comparingIndex--;
     }
-
         // keep index in pending
         while (comparingIndex >= pending.size())
             comparingIndex--;
@@ -226,21 +230,20 @@ void jacob(T &container, unsigned long n){
 
         // search through main for insertion position
         for (size_t k = startingBounds; k < main.size(); k += n){
-
-            // auto posForInsert = main.begin() + k - n + 1;
             auto posForInsert = main.begin() + k - n + 1;
             auto groupStartingPos = pending.begin() + comparingIndex - n + 1;
             auto groupLastPos = pending.begin() + comparingIndex + 1;
             auto posForInsertAfterBounds = main.begin() + k + 1;
 
             // check if bound needs to be adjusted because of relationship between neighbouring groups
-            size_t offsetOfBounds = checkDistanceOfAofNplusOne(container, endingBounds, n, main);
+            size_t offsetOfBounds = checkAdjustedInsertionDistance(container, endingBounds, n, main);
 
             if (offsetOfBounds != 0)
                 endingBounds = offsetOfBounds;
             
             // std::cout << "Comparing pending " << pending[comparingIndex] << " with main[" << k << "] = " << main[k] << std::endl;
             // ++comparisons;
+
             // if pending element is smaller than the current main element, insert it before that position
             if (pending[comparingIndex] < main[k]) {
                 if (n != 1) {
@@ -289,13 +292,12 @@ void jacob(T &container, unsigned long n){
             } */
     }
 
-    int nonParticipating = container.size() % n;
+    int remainingElements = container.size() % n;
 
-    if (n != 1 || nonParticipating != 0){
-        while (nonParticipating--)
-        {
+    if (n != 1 || remainingElements != 0){
+        while (remainingElements--) {
             main.push_back(
-                container[container.size() - nonParticipating - 1]);
+                container[container.size() - remainingElements - 1]);
         }
     }
 
