@@ -37,17 +37,18 @@ int main (int ac, char **av){
 
     // convert to number
     errno = 0;
-    char *end;
-    long value = std::strtol(av[i], &end, 10);
+    char *end = NULL;
+    unsigned long value = std::strtoul(av[i], &end, 10);
 
     // reject overflow, zero, and values above INT_MAX
-    if (errno == ERANGE || *end != '\0' || value <= 0 || value > INT_MAX){
+    if (errno == ERANGE || *end != '\0' || value == 0
+        || value > static_cast<unsigned long>(INT_MAX)){
         std::cerr << RED << "Error: Invalid value!\nUsage: ./PmergeMe <numbers...>" << RESET << std::endl;
         return 1;
     }
 
-    numbers.push_back(static_cast<unsigned long>(value));
-    dequeNumbers.push_back(static_cast<unsigned long>(value));
+    numbers.push_back(value);
+    dequeNumbers.push_back(value);
 }
 
     std::cout << CYAN << BOLD << "\n------------ Vector ------------" << RESET << std::endl;
